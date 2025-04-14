@@ -49,6 +49,22 @@ MainWindow::MainWindow(QWidget *parent)
     ui->ChartUchyb->setChart(chart1);
     ui->Chartwartosci->setChart(chart2);
     ui->ChartSterowanie->setChart(chart3);
+
+    serwer = new QTcpServer(this);
+    gniazdoKlienta = new QTcpSocket(this);
+
+    connect(serwer, &QTcpServer::newConnection, this, [=]() {
+        QTcpSocket* polaczenie = serwer->nextPendingConnection();
+        ui->labelStatus->setText("Połączono jako serwer");
+    });
+
+    connect(gniazdoKlienta, &QTcpSocket::connected, this, [=]() {
+        ui->labelStatus->setText("Połączono jako klient");
+    });
+
+    connect(gniazdoKlienta, &QTcpSocket::disconnected, this, [=]() {
+        ui->labelStatus->setText("Rozłączono z serwerem");
+    });
 }
 
 MainWindow::~MainWindow()
@@ -373,4 +389,45 @@ void MainWindow::on_edytujARX_clicked()
     edit_ARX->Set_Odchyl(sym.Get_odchyl_Arx());
     edit_ARX->show();
 }
+
+void MainWindow::on_checkSiec_stateChanged(int stan)
+{
+    trybSiec = (stan == Qt::Checked);
+    if (trybSiec)
+    {
+        serwer->listen(QHostAddress::Any, 12345);
+    }
+    if (!trybSiec) {
+        serwer->close();
+        gniazdoKlienta->disconnectFromHost();
+        ui->labelStatus->clear();        // ⬅️ to zatrzymuje nasłuchiwanie
+    }
+    // Blokowanie kontrolek lokalnych
+    ui->ustawA->setEnabled(!trybSiec);
+    ui->ustawP->setEnabled(!trybSiec);
+    ui->ustawT->setEnabled(!trybSiec);
+    ui->Sygnal->setEnabled(!trybSiec);
+    ui->ustawKpid->setEnabled(!trybSiec);
+    ui->ustawTi->setEnabled(!trybSiec);
+    ui->ustawTd->setEnabled(!trybSiec);
+    ui->ustaw_S->setEnabled(!trybSiec);
+    ui->Spbox_inter->setEnabled(!trybSiec);
+    ui->pidReset->setEnabled(!trybSiec);
+    ui->edytujARX->setEnabled(!trybSiec); // w pełnej wersji będzie odblokowane w instancji obiektu
+}
+
+void MainWindow::on_btnPolacz_clicked()
+{
+    if (trybSiec) {
+        QString ip = ui->lineIP->text();
+
+        // Jeśli gniazdo jest już połączone lub próbuje się łączyć – rozłącz
+        if (gniazdoKlienta->state() != QAbstractSocket::UnconnectedState) {
+            gniazdoKlienta->abort();  // natychmiastowe rozłączenie
+        }
+
+        gniazdoKlienta->connectToHost(ip, 12345);
+    }
+}
+
 
