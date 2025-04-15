@@ -58,22 +58,17 @@ private slots:
     void on_chboxCalka_stateChanged(int arg1);
     void on_pidReset_clicked();
     void on_edytujARX_clicked();
-
-    // 🔽 DODANE SLOTY
     void on_checkSiec_stateChanged(int stan);
     void on_btnPolacz_clicked();
-
 private:
     Ui::MainWindow *ui;
     Symulator sym;
     int inter;
     friend Symulator;
     void sig();
-
     QChart* chart1=new QChart();
     QChart* chart2=new QChart();
     QChart* chart3=new QChart();
-
     QLineSeries* series = new QLineSeries();
     QLineSeries* series2 = new QLineSeries();
     QLineSeries* series3 = new QLineSeries();
@@ -81,7 +76,6 @@ private:
     QLineSeries* series5 = new QLineSeries();
     QLineSeries* series6 = new QLineSeries();
     QLineSeries* series7 = new QLineSeries();
-
     bool working=false;
     QTimer* timer=nullptr;
     double maks_y1=-1;
@@ -92,8 +86,6 @@ private:
     double min_y3=0;
     Dialog_ARX* edit_ARX;
     int x=0;
-
-    // 🔽 DODANE
     QTcpSocket* gniazdoKlienta;
     QTcpServer* serwer;
     bool trybSiec = false;

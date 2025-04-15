@@ -3,8 +3,6 @@
 #include <vector>
 #include <deque>
 
-
-
 using namespace std;
 class ModelARX; class RegulatorPID;
 
@@ -26,11 +24,9 @@ public:
     void Set_A1(double a);
     void Set_A2(double a);
     void Set_A3(double a);
-
     void Set_B1(double b);
     void Set_B2(double b);
     void Set_B3(double b);
-
     void Add_A(double a);
     void Set_B(vector<double>b);
     void Add_B(double b);

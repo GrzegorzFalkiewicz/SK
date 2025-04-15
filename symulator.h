@@ -5,7 +5,6 @@
 #include "ModelARX.h"
 #include <cassert>
 
-
 enum class signal {
     sk_jed=0,
     syg_prost=1,

@@ -6,11 +6,8 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow),timer(new QTimer(this))
 {
     ui->setupUi(this);
-    //wywołanie przygotowania wartości początkowych symulatora
     sym.Setup();
-
     connect(timer,SIGNAL(timeout()),this,SLOT(advance()));
-    //wywołanie slotów do ustawienia wartości początkowych
     on_Spbox_inter_valueChanged(ui->Spbox_inter->value());
     on_Spbox_Stala_valueChanged(ui->ustaw_S->value());
     on_ustawA_valueChanged(ui->ustawA->value());
@@ -19,8 +16,6 @@ MainWindow::MainWindow(QWidget *parent)
     on_ustawKpid_valueChanged(ui->ustawKpid->value());
     on_ustawTi_valueChanged(ui->ustawTi->value());
     on_ustawTd_valueChanged(ui->ustawTd->value());
-
-    //ręczne ustawienie współczynników modelu ARX
     sym.set_a1(-0.4);
     sym.set_a2(0.2);
     sym.set_a3(0.0);
@@ -28,40 +23,24 @@ MainWindow::MainWindow(QWidget *parent)
     sym.set_b2(0.3);
     sym.set_b3(0.0);
     sym.set_arx_k(1);
-
-
-    //wywołąnie metody do ustawienia rodzaju sygnału zadanego
     sig();
-
-    //utworzenie instancjo okienka dialogowego
     edit_ARX = new Dialog_ARX;
-
-    //połączenie sygnału akceptacji zmian okienka dialogowego ze slotem okienka głównego
     connect(edit_ARX,SIGNAL(accepted()),this,SLOT(Pobiezdane_ARX()));
-
-    //wywołanie slotów do przyotowania wykresów
     ustawNazwy();
-
     dodajSerie();
-
     utworzOsie();
-
     ui->ChartUchyb->setChart(chart1);
     ui->Chartwartosci->setChart(chart2);
     ui->ChartSterowanie->setChart(chart3);
-
     serwer = new QTcpServer(this);
     gniazdoKlienta = new QTcpSocket(this);
-
     connect(serwer, &QTcpServer::newConnection, this, [=]() {
         QTcpSocket* polaczenie = serwer->nextPendingConnection();
         ui->labelStatus->setText("Połączono jako serwer");
     });
-
     connect(gniazdoKlienta, &QTcpSocket::connected, this, [=]() {
         ui->labelStatus->setText("Połączono jako klient");
     });
-
     connect(gniazdoKlienta, &QTcpSocket::disconnected, this, [=]() {
         ui->labelStatus->setText("Rozłączono z serwerem");
     });
@@ -75,7 +54,6 @@ MainWindow::~MainWindow()
     usun_charty();
 }
 
-// metoda do zmiany rodzaju sygnału
 void MainWindow::sig()
 {
     signal newsig;
@@ -84,17 +62,12 @@ void MainWindow::sig()
     else if(text=="Sinusoida")newsig=signal::syg_sin;
     else newsig=signal::sk_jed;
     sym.set_syg(newsig);
-
-
 }
 
-// wykonanie kroku symulacji
 void MainWindow::advance()
 {
     if(sym.get_start()){
         sym.symulacja();
-
-        // ucinanie wykresóW
         if(sym.get_ite()>42.0)
         {
             x=(sym.get_ite()-38.0);
@@ -106,15 +79,11 @@ void MainWindow::advance()
             series6->remove(0);
             series7->remove(0);
         }
-
         dodacDoSerii();
-
         resetMaksMin();
         ustawMin();
         ustawMax();
-
         ustawZakres();
-
     }
 
 }
@@ -124,30 +93,25 @@ void MainWindow::on_ustawA_valueChanged(double arg1)
     sym.set_zad(arg1);
 }
 
-
 void MainWindow::on_ustawP_valueChanged(double arg1)
 {
     sym.set_p(arg1);
 }
-
 
 void MainWindow::on_ustawT_valueChanged(int arg1)
 {
     sym.set_T(arg1);
 }
 
-
 void MainWindow::on_ustawKpid_valueChanged(double arg1)
 {
     sym.set_pid_k(arg1);
 }
 
-
 void MainWindow::on_ustawTi_valueChanged(double arg1)
 {
     sym.set_pid_Ti(arg1);
 }
-
 
 void MainWindow::on_ustawTd_valueChanged(double arg1)
 {
@@ -164,6 +128,7 @@ void MainWindow::dodajSerie()
     chart3->addSeries(series6);
     chart3->addSeries(series7);
 }
+
 void MainWindow::usunSerie()
 {
     delete series;
@@ -185,6 +150,7 @@ void MainWindow::utworzSerie()
     series6 = new QLineSeries();
     series7 = new QLineSeries();
 }
+
 void MainWindow::resetMaksMin()
 {
     maks_y1=0.00001;
@@ -194,6 +160,7 @@ void MainWindow::resetMaksMin()
     min_y2=-0.00001;
     min_y3=-0.00001;
 }
+
 void MainWindow::utworzOsie()
 {
     chart1->createDefaultAxes();
@@ -207,6 +174,7 @@ void MainWindow::utworzOsie()
     chart3->axes(Qt::Horizontal).first()->setTitleText("iteracja");
     chart3->axes(Qt::Vertical).first()->setTitleText("Odp");
 }
+
 void MainWindow::ustawNazwy()
 {
     series->setName("Uchyb");
@@ -219,6 +187,7 @@ void MainWindow::ustawNazwy()
 
 
 }
+
 void MainWindow::ustawZakres()
 {
     chart1->axes(Qt::Horizontal).first()->setRange(x,sym.get_ite());
@@ -228,6 +197,7 @@ void MainWindow::ustawZakres()
     chart3->axes(Qt::Horizontal).first()->setRange(x,sym.get_ite());
     chart3->axes(Qt::Vertical).first()->setRange(min_y3 - abs(0.2*min_y3),maks_y3*1.5);
 }
+
 void MainWindow::dodacDoSerii()
 {
     series->append(sym.get_ite(),sym.get_u());
@@ -238,6 +208,7 @@ void MainWindow::dodacDoSerii()
     series6->append(sym.get_ite(),sym.get_D());
     series7->append(sym.get_ite(),sym.get_ster());
 }
+
 void MainWindow::ustawMin()
 {
     if(min_y1<0.0001 && min_y1>-0.0001)
@@ -250,6 +221,7 @@ void MainWindow::ustawMin()
     ZakresWykresu(min_y3,series6);
     ZakresWykresu(min_y3,series7);
 }
+
 void MainWindow::ustawMax()
 {
     if(maks_y1<0.0001 && maks_y1>-0.0001)
@@ -262,6 +234,7 @@ void MainWindow::ustawMax()
     ZakresWykresu(maks_y3,series6,false);
     ZakresWykresu(maks_y3,series7,false);
 }
+
 void MainWindow::ZakresWykresu(double &y, QLineSeries * &seria, bool czy_min)
 {
     int j=min(38,sym.get_ite());
@@ -289,7 +262,6 @@ void MainWindow::on_Spbox_inter_valueChanged(double arg1)
     timer->setInterval(arg1*1000);
 }
 
-//Pobieranie danych z ARX
 void MainWindow::Pobiezdane_ARX()
 {
 
@@ -301,8 +273,6 @@ void MainWindow::Pobiezdane_ARX()
     sym.set_b3(edit_ARX->b3);
     sym.set_arx_k(edit_ARX->K);
     sym.Set_Odch(edit_ARX->odchyl);
-
-
 }
 
 void MainWindow::on_checkBox_stateChanged(int arg1)
@@ -310,12 +280,10 @@ void MainWindow::on_checkBox_stateChanged(int arg1)
     sym.set_tryb(ui->chboxCalka->isChecked());
 }
 
-
 void MainWindow::on_Spbox_Stala_valueChanged(double arg1)
 {
     sym.set_stala(arg1);
 }
-
 
 void MainWindow::on_StartStop_clicked()
 {
@@ -323,7 +291,6 @@ void MainWindow::on_StartStop_clicked()
     working=!working;
     if(!working)timer->stop();else timer->start();
 }
-
 
 void MainWindow::on_Reset_clicked()
 {
@@ -350,12 +317,10 @@ void MainWindow::on_Reset_clicked()
     ui->ChartSterowanie->setChart(chart3);
 }
 
-
 void MainWindow::on_ustaw_S_valueChanged(double arg1)
 {
     sym.set_stala(arg1);
 }
-
 
 void MainWindow::on_Sygnal_currentTextChanged(const QString &arg1)
 {
@@ -363,22 +328,18 @@ void MainWindow::on_Sygnal_currentTextChanged(const QString &arg1)
     sig();
 }
 
-
 void MainWindow::on_chboxCalka_stateChanged(int arg1)
 {
     sym.set_tryb(ui->chboxCalka->isChecked());
 }
-
 
 void MainWindow::on_pidReset_clicked()
 {
     sym.reset();
 }
 
-
 void MainWindow::on_edytujARX_clicked()
 {
-    // ustawnienie aktualnych wartości ARX w okienku dialogowym i wyświetlenie go
     edit_ARX->Set_A1(sym.Get_A_ARX(0));
     edit_ARX->Set_A2(sym.Get_A_ARX(1));
     edit_ARX->Set_A3(sym.Get_A_ARX(2));
@@ -400,9 +361,8 @@ void MainWindow::on_checkSiec_stateChanged(int stan)
     if (!trybSiec) {
         serwer->close();
         gniazdoKlienta->disconnectFromHost();
-        ui->labelStatus->clear();        // ⬅️ to zatrzymuje nasłuchiwanie
+        ui->labelStatus->clear();
     }
-    // Blokowanie kontrolek lokalnych
     ui->ustawA->setEnabled(!trybSiec);
     ui->ustawP->setEnabled(!trybSiec);
     ui->ustawT->setEnabled(!trybSiec);
@@ -413,19 +373,16 @@ void MainWindow::on_checkSiec_stateChanged(int stan)
     ui->ustaw_S->setEnabled(!trybSiec);
     ui->Spbox_inter->setEnabled(!trybSiec);
     ui->pidReset->setEnabled(!trybSiec);
-    ui->edytujARX->setEnabled(!trybSiec); // w pełnej wersji będzie odblokowane w instancji obiektu
+    ui->edytujARX->setEnabled(!trybSiec);
 }
 
 void MainWindow::on_btnPolacz_clicked()
 {
     if (trybSiec) {
         QString ip = ui->lineIP->text();
-
-        // Jeśli gniazdo jest już połączone lub próbuje się łączyć – rozłącz
         if (gniazdoKlienta->state() != QAbstractSocket::UnconnectedState) {
-            gniazdoKlienta->abort();  // natychmiastowe rozłączenie
+            gniazdoKlienta->abort();
         }
-
         gniazdoKlienta->connectToHost(ip, 12345);
     }
 }
