@@ -58,8 +58,6 @@ private slots:
     void on_chboxCalka_stateChanged(int arg1);
     void on_pidReset_clicked();
     void on_edytujARX_clicked();
-
-    // 🔽 DODANE SLOTY
     void on_checkSiec_stateChanged(int stan);
     void on_btnPolacz_clicked();
 
