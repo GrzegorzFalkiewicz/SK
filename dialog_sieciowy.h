@@ -44,6 +44,7 @@ private:
     QString aktualnyKolor;
     bool trybSieciowyWlaczony;
     QTimer *reconnector;
+    bool rozlaczonoRecznie;
 
     void ustawKontrolke(const QString &kolor);
     void wyswietlKomunikat(const QString &tekst);

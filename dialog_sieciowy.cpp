@@ -16,6 +16,7 @@ dialog_sieciowy::dialog_sieciowy(QWidget *parent)
     ui->groupTryb->hide();
     pokazElementySerwera(false);
     pokazElementyKlienta(false);
+    rozlaczonoRecznie = false;
 
     connect(serwer, &QTcpServer::newConnection, this, &dialog_sieciowy::nowyKlient);
     connect(klient, &QTcpSocket::connected, this, &dialog_sieciowy::polaczonoZSerwerem);
@@ -93,6 +94,7 @@ void dialog_sieciowy::on_radioKlient_toggled(bool checked)
 
 void dialog_sieciowy::on_btnStartSerwer_clicked()
 {
+    ui->btnStartSerwer->setEnabled(false);
     ui->radioSerwer->setEnabled(false);
     ui->radioKlient->setEnabled(false);
     quint16 port = ui->linePortSerwer->text().toUShort();
@@ -109,6 +111,7 @@ void dialog_sieciowy::nowyKlient()
 {
     polaczoneGniazdo = serwer->nextPendingConnection();
     QString ip = polaczoneGniazdo->peerAddress().toString();
+    if (ip.startsWith("::ffff:")) ip = ip.mid(7);
     wyswietlKomunikat("Klient połączony. Adres: " + ip);
     migajKontrolka("green", "gray");
 
@@ -124,6 +127,7 @@ void dialog_sieciowy::klientRozlaczyl()
 
 void dialog_sieciowy::on_btnStopSerwer_clicked()
 {
+    ui->btnStartSerwer->setEnabled(true);
     ui->radioSerwer->setEnabled(true);
     ui->radioKlient->setEnabled(true);
     if (serwer->isListening()) {
@@ -138,6 +142,7 @@ void dialog_sieciowy::on_btnStopSerwer_clicked()
 
 void dialog_sieciowy::on_btnPolaczKlient_clicked()
 {
+    ui->btnPolaczKlient->setEnabled(false);
     ui->radioSerwer->setEnabled(false);
     ui->radioKlient->setEnabled(false);
     QString ip = ui->lineIP->text();
@@ -154,7 +159,12 @@ void dialog_sieciowy::polaczonoZSerwerem()
     ui->radioSerwer->setEnabled(false);
     ui->radioKlient->setEnabled(false);
     ustawKontrolke("green");
+    QString ip = klient->peerAddress().toString();
+    if (ip.startsWith("::ffff:")) ip = ip.mid(7);
     wyswietlKomunikat("Połączono z serwerem: " + klient->peerAddress().toString());
+
+    rozlaczonoRecznie = false;
+    reconnector->stop();
 }
 
 void dialog_sieciowy::rozlaczonoZSerwerem()
@@ -162,10 +172,16 @@ void dialog_sieciowy::rozlaczonoZSerwerem()
     ustawKontrolke("red");
     wyswietlKomunikat("Rozłączono przez serwer.");
     QTimer::singleShot(2000, this, [=]() { ustawKontrolke("gray"); });
+    if (!rozlaczonoRecznie) {
+        reconnector->start();
+    }
 }
 
 void dialog_sieciowy::on_btnRozlaczKlient_clicked()
 {
+    rozlaczonoRecznie = true;
+    reconnector->stop();
+    ui->btnPolaczKlient->setEnabled(true);
     ui->radioSerwer->setEnabled(true);
     ui->radioKlient->setEnabled(true);
     klient->disconnectFromHost();
