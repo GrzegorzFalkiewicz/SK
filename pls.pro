@@ -12,6 +12,7 @@ SOURCES += \
     ModelARX.cpp \
     RegulatorPID.cpp \
     dialog_arx.cpp \
+    dialog_sieciowy.cpp \
     main.cpp \
     mainwindow.cpp \
     symulator.cpp
@@ -23,6 +24,7 @@ HEADERS += \
     RegulatorPID.h \
     WartoscZadana.h \
     dialog_arx.h \
+    dialog_sieciowy.h \
     mainwindow.h \
     symulator.h
     RegulatorPID.h
@@ -31,6 +33,7 @@ HEADERS += \
 
 FORMS += \
     dialog_arx.ui \
+    dialog_sieciowy.ui \
     mainwindow.ui
 
 # Default rules for deployment.

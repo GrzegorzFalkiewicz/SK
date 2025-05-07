@@ -7,6 +7,7 @@
 #include <vector>
 #include <iomanip>
 
+
 #define DEBUG
 
 using namespace std;

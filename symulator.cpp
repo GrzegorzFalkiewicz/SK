@@ -67,12 +67,15 @@ bool Symulator::get_start(){return sterowanie;}
 double Symulator::get_Y(){return arx.Get_Y();}
 
 void Symulator::symulacja(){
+
+
         if(syg==signal::sk_jed)u = gen1(ite) - arx.Get_Y();
         else if (syg == signal::syg_prost) u = gen2(ite) - arx.Get_Y();
         else u = gen3(ite) - arx.Get_Y();
         y_pid = pid.symuluj(u);
         arx.symuluj(y_pid);
         ite++;
+
 }
 
 void Symulator::change_z(){arx.change_Z();}
@@ -84,8 +87,7 @@ void Symulator::Setup(){
     pid.set_ei(0);
     ite = 0;
     u = 0;
-    y_pid = 0;
-}
+    y_pid = 0;}
 
 void Symulator::change_Z(){arx.change_Z();};
 
