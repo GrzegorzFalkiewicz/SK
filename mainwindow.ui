@@ -14,12 +14,9 @@
    <string>SUAR</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QHBoxLayout" name="horizontalLayout_9" stretch="0,0">
-    <property name="spacing">
-     <number>2</number>
-    </property>
-    <item>
-     <layout class="QVBoxLayout" name="verticalLayout_15" stretch="1,3,3,2,0">
+   <layout class="QFormLayout" name="formLayout">
+    <item row="0" column="0">
+     <layout class="QVBoxLayout" name="verticalLayout_15" stretch="1,3,3,2,0,0,0,0,0">
       <property name="spacing">
        <number>3</number>
       </property>
@@ -457,15 +454,56 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="btnPolaczenieSieciowe">
+       <layout class="QVBoxLayout" name="verticalLayout_2"/>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="checkSiec">
         <property name="text">
-         <string>Połączenie sieciowe</string>
+         <string>Tryb sieciowy</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <item>
+         <widget class="QLabel" name="label_13">
+          <property name="text">
+           <string>Adres: </string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="lineIP">
+          <property name="maximumSize">
+           <size>
+            <width>200</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>127.0.01</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnPolacz">
+        <property name="text">
+         <string>Połącz</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="labelStatus">
+        <property name="text">
+         <string/>
         </property>
        </widget>
       </item>
      </layout>
     </item>
-    <item>
+    <item row="0" column="1">
      <layout class="QVBoxLayout" name="verticalLayout" stretch="3,2">
       <property name="spacing">
        <number>2</number>
